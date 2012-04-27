@@ -15,11 +15,6 @@ public class P2PTwitterActivity extends TabActivity {
 		TabHost tabHost = getTabHost();
 		TabHost.TabSpec spec;
 		Intent intent;
-		
-
-		//hi
-//		hi2
-//		hi3
 
 		intent = new Intent().setClass(this, StatusHistoryListActivity.class);
 		spec = tabHost.newTabSpec("public").setIndicator("Public")
