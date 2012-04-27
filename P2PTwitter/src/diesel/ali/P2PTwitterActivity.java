@@ -26,6 +26,10 @@ public class P2PTwitterActivity extends TabActivity {
 				.setContent(intent);
 		tabHost.addTab(spec);
 
+		
+//		/asdfasdfas
+		
+		
 		tabHost.setCurrentTabByTag("public");
 	}
 }
