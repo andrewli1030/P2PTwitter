@@ -16,9 +16,10 @@ public class P2PTwitterActivity extends TabActivity {
 		TabHost.TabSpec spec;
 		Intent intent;
 		
+
 		//hi
 //		hi2
-		//DIESEL
+//		hi3
 
 		intent = new Intent().setClass(this, StatusHistoryListActivity.class);
 		spec = tabHost.newTabSpec("public").setIndicator("Public")
@@ -30,10 +31,6 @@ public class P2PTwitterActivity extends TabActivity {
 				.setContent(intent);
 		tabHost.addTab(spec);
 
-		
-//		asdfasdfas
-		
-		
 		tabHost.setCurrentTabByTag("public");
 	}
 }
