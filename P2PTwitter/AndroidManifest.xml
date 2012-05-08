@@ -39,6 +39,8 @@
         </activity>
         <activity android:name=".StatusesActivity" >
         </activity>
+        <activity android:name=".StatusHistoryActivity" >
+        </activity>
     </application>
 
 </manifest>

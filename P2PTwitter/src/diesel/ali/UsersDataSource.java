@@ -6,24 +6,11 @@ import java.util.List;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
-public class UsersDataSource {
-
-	private SQLiteDatabase database;
-	private DatabaseHelper dbHelper;
+public class UsersDataSource extends DataSource {
 
 	public UsersDataSource(Context context) {
-		dbHelper = new DatabaseHelper(context);
-	}
-
-	public void open() throws SQLException {
-		database = dbHelper.getWritableDatabase();
-	}
-
-	public void close() {
-		dbHelper.close();
+		super(context);
 	}
 
 	public void insertUser(User user) {

@@ -8,6 +8,7 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.TabActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.text.Editable;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -26,6 +28,7 @@ public class FriendsListActivity extends ListActivity {
 
 	private List<User> FRIENDS = new ArrayList<User>();
 	private UsersDataSource datasource;
+	private StatusHistoryDataSource statusHistoryDataSource;
 	private static final int DIALOG_ADD_FRIEND = 1;
 	private static final int DIALOG_DELETE_FRIEND = 2;
 
@@ -37,6 +40,9 @@ public class FriendsListActivity extends ListActivity {
 		datasource = new UsersDataSource(this);
 		datasource.open();
 
+		statusHistoryDataSource = new StatusHistoryDataSource(this);
+		statusHistoryDataSource.open();
+
 		FRIENDS = datasource.getAllUsers();
 
 		setTitle("Friends");
@@ -45,28 +51,49 @@ public class FriendsListActivity extends ListActivity {
 
 		final ListView lv = getListView();
 		lv.setTextFilterEnabled(true);
-		// lv.setLongClickable(true);
+		lv.setLongClickable(true);
 
 		// registerForContextMenu(getListVikeyew());
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
-				Bundle bundle = new Bundle();
-				bundle.putSerializable("Position", position);
-				showDialog(DIALOG_DELETE_FRIEND, bundle);
+				Bundle extras = getIntent().getExtras();
+				if (extras != null) {
+					String statusText = extras.getString("Status");
+					/*
+					 * Status status = new Status(P2PTwitterActivity.SENDER,
+					 * (User) lv.getItemAtPosition(position), statusText, (int)
+					 * System.currentTimeMillis() / 1000);
+					 */
+
+					statusHistoryDataSource.insertStatus(
+							P2PTwitterActivity.SENDER,
+							(User) lv.getItemAtPosition(position), statusText,
+							(int) System.currentTimeMillis() / 1000);
+
+				}
+				Intent intent = new Intent(view.getContext(),
+						StatusHistoryActivity.class);
+				intent.putExtra("Recipient",
+						((User) lv.getItemAtPosition(position)).getUsername());
+				startActivity(intent);
+
 			}
 		});
 
-		/*
-		 * lv.setOnLongClickListener(new OnLongClickListener() {
-		 * 
-		 * @Override public boolean onLongClick(View v) { userSelected = new
-		 * User(((TextView) v).getText().toString());
-		 * showDialog(DIALOG_DELETE_FRIEND); return true; }
-		 * 
-		 * });
-		 */
+		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				Bundle bundle = new Bundle();
+				bundle.putInt("Position", position);
+				showDialog(DIALOG_DELETE_FRIEND);
+				return true;
+			}
+		});
+
 	}
 
 	@Override
@@ -126,7 +153,7 @@ public class FriendsListActivity extends ListActivity {
 		case (DIALOG_DELETE_FRIEND):
 			dialog = new AlertDialog.Builder(
 					getParent() instanceof TabActivity ? getParent() : this)
-					.setPositiveButton("Delete",
+					.setNegativeButton("Delete",
 							new DialogInterface.OnClickListener() {
 
 								@SuppressWarnings("unchecked")

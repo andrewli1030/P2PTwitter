@@ -17,9 +17,6 @@ public class PublicStatusesActivity extends StatusesActivity {
 
 	public static final List<Status> PUBLIC_STATUSES = new ArrayList<Status>();
 	
-	static {
-		PUBLIC_STATUSES.add(new Status(new User("Amandeep Pandher"), "woot"));
-	}
 
 	@Override
 	public List<Status> getStatuses() {

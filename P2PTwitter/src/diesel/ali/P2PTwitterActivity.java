@@ -7,6 +7,9 @@ import android.widget.TabHost;
 
 public class P2PTwitterActivity extends TabActivity {
 	/** Called when the activity is first created. */
+	
+	public static final User SENDER = new User("AndrewLi");
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
