@@ -14,12 +14,8 @@
  *    limitations under the License.
  */
 
-package org.alljoyn.bus.sample.chat;
+package org.alljoyn.services;
 
-import org.alljoyn.bus.sample.chat.AllJoynService;
-import org.alljoyn.bus.sample.chat.Observable;
-import org.alljoyn.bus.sample.chat.Observer;
-import org.alljoyn.bus.sample.chat.AllJoynService.UseChannelState;
 
 import android.app.Application;
 
@@ -36,6 +32,13 @@ import java.util.Date;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+
+import org.alljoyn.services.AllJoynService;
+import org.alljoyn.services.Observable;
+import org.alljoyn.services.Observer;
+import org.alljoyn.services.AllJoynService.UseChannelState;
+
+import diesel.ali.Status;
 
 /**
  * The ChatAppliation class serves as the Model (in the sense of the common
@@ -480,6 +483,13 @@ public class ChatApplication extends Application implements Observable {
 		}
 	}
 	
+	public synchronized void newLocalUserMessage(Status status) {
+		addInboundItem(status);
+		if (useGetChannelState() == AllJoynService.UseChannelState.JOINED) {
+			addOutboundItem(status);
+		}
+	}
+	
 	/**
 	 * Whenever a user types a message into the channel, we expect the AllJoyn 
 	 * Service local to that user to send the message to everyone participating
@@ -506,6 +516,8 @@ public class ChatApplication extends Application implements Observable {
 	 * by our local user and are designed for the outside world.
 	 */
 	private List<String> mOutbound = new ArrayList<String>();
+	private List<Status> mOutboundStatuses = new ArrayList<Status>();
+	
 	
 	/**
 	 * Whenever the local user types a message for distribution to the channel
@@ -522,6 +534,10 @@ public class ChatApplication extends Application implements Observable {
 		mOutbound.add(message);
 		notifyObservers(OUTBOUND_CHANGED_EVENT);
 	}
+	private void addOutboundItem(Status status) {
+		mOutboundStatuses.add(status);
+		notifyObservers(OUTBOUND_CHANGED_EVENT);
+	}
 	
 	/**
 	 * Whenever the local user types a message for distribution to the channel
@@ -536,6 +552,15 @@ public class ChatApplication extends Application implements Observable {
 			return mOutbound.remove(0);
 		}
 	}
+	
+	public synchronized Status getOutboundStatus() {
+		if (mOutboundStatuses.isEmpty()) {
+			return null;
+		} else {
+			return mOutboundStatuses.remove(0);
+		}
+	}
+	
 	
 	/**
 	 * The object we use in notifications to indicate that the history state of
@@ -557,6 +582,10 @@ public class ChatApplication extends Application implements Observable {
 		addHistoryItem(nickname, message);
 	}
 	
+	private void addInboundItem(Status status) {
+		addHistoryItem(status);
+	}
+	
 	/**
 	 * Don't keep an infinite amount of history.  Although we don't want to 
 	 * admit it, this is a toy application, so we just keep a little history.
@@ -568,6 +597,7 @@ public class ChatApplication extends Application implements Observable {
 	 * or recieved by the "use" channel.
 	 */
 	private List<String> mHistory = new ArrayList<String>();
+	private List<Status> mStatusHistory = new ArrayList<Status>();
 	
 	/**
 	 * Whenever a user in the channel types a message, it needs to result in
@@ -591,6 +621,12 @@ public class ChatApplication extends Application implements Observable {
 			notifyObservers(GOT_A);
 		else
 			notifyObservers(HISTORY_CHANGED_EVENT);
+	}
+	
+	private void addHistoryItem(Status status) {		
+		mStatusHistory.add(status);
+		notifyObservers(HISTORY_CHANGED_EVENT);
+		
 	}
 	
 	public static final String GOT_A = "GOT_A";
@@ -619,6 +655,18 @@ public class ChatApplication extends Application implements Observable {
             clone.add(new String(string));
         }
         return clone;
+    }
+    
+    public synchronized List<Status> getStatusHistory() {
+        List<Status> clone = new ArrayList<Status>(mStatusHistory.size());
+        for (Status status: mStatusHistory) {
+            clone.add(status);
+        }
+        return clone;
+    }
+    
+    public synchronized void clearStatusHistory() {
+    	mStatusHistory.clear();
     }
 	
 	/**

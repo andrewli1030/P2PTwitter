@@ -27,23 +27,22 @@ import android.widget.ListView;
 public class FriendsListActivity extends ListActivity {
 
 	private List<User> FRIENDS = new ArrayList<User>();
-	private UsersDataSource datasource;
+	private UsersDataSource userDataSource;
 	private StatusHistoryDataSource statusHistoryDataSource;
 	private static final int DIALOG_ADD_FRIEND = 1;
 	private static final int DIALOG_DELETE_FRIEND = 2;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 
-		datasource = new UsersDataSource(this);
-		datasource.open();
+		userDataSource = new UsersDataSource(this);
+		userDataSource.open();
 
 		statusHistoryDataSource = new StatusHistoryDataSource(this);
 		statusHistoryDataSource.open();
 
-		FRIENDS = datasource.getAllUsers();
+		FRIENDS = userDataSource.getAllUsers();
 
 		setTitle("Friends");
 		setListAdapter(new ArrayAdapter<User>(this, R.layout.friends_list_item,
@@ -53,30 +52,21 @@ public class FriendsListActivity extends ListActivity {
 		lv.setTextFilterEnabled(true);
 		lv.setLongClickable(true);
 
-		// registerForContextMenu(getListVikeyew());
-
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				Bundle extras = getIntent().getExtras();
-				if (extras != null) {
+				User recipient = (User) lv.getItemAtPosition(position);
+				if (extras != null && extras.getString("Status") != null) {
 					String statusText = extras.getString("Status");
-					/*
-					 * Status status = new Status(P2PTwitterActivity.SENDER,
-					 * (User) lv.getItemAtPosition(position), statusText, (int)
-					 * System.currentTimeMillis() / 1000);
-					 */
-
 					statusHistoryDataSource.insertStatus(
-							P2PTwitterActivity.SENDER,
-							(User) lv.getItemAtPosition(position), statusText,
+							P2PTwitterActivity.SENDER, recipient, statusText,
 							(int) System.currentTimeMillis() / 1000);
-
+					// TODO send status
 				}
 				Intent intent = new Intent(view.getContext(),
 						StatusHistoryActivity.class);
-				intent.putExtra("Recipient",
-						((User) lv.getItemAtPosition(position)).getUsername());
+				intent.putExtra("Recipient", recipient.getUsername());
 				startActivity(intent);
 
 			}
@@ -89,7 +79,7 @@ public class FriendsListActivity extends ListActivity {
 					int position, long id) {
 				Bundle bundle = new Bundle();
 				bundle.putInt("Position", position);
-				showDialog(DIALOG_DELETE_FRIEND);
+				showDialog(DIALOG_DELETE_FRIEND, bundle);
 				return true;
 			}
 		});
@@ -98,7 +88,6 @@ public class FriendsListActivity extends ListActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// TODO Auto-generated method stub
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.friends_list_menu, menu);
 		return true;
@@ -126,7 +115,7 @@ public class FriendsListActivity extends ListActivity {
 									Editable username = textEntryView.getText();
 									User newFriend = new User(username
 											.toString());
-									datasource.insertUser(newFriend);
+									userDataSource.insertUser(newFriend);
 									FRIENDS.add(newFriend);
 									((ArrayAdapter<User>) getListAdapter())
 											.notifyDataSetChanged();
@@ -160,10 +149,10 @@ public class FriendsListActivity extends ListActivity {
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
-									User selectedUser = (User) getListView()
-											.getItemAtPosition(
-													args.getInt("Position"));
-									datasource.deleteUser(selectedUser);
+									User selectedUser = (User) (getListView()
+											.getItemAtPosition(args
+													.getInt("Position")));
+									userDataSource.deleteUser(selectedUser);
 									FRIENDS.remove(selectedUser);
 									((ArrayAdapter<User>) getListAdapter())
 											.notifyDataSetChanged();
@@ -186,7 +175,6 @@ public class FriendsListActivity extends ListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// TODO Auto-generated method stub
 		switch (item.getItemId()) {
 		case (R.id.add_friend):
 			showDialog(DIALOG_ADD_FRIEND);
@@ -196,21 +184,15 @@ public class FriendsListActivity extends ListActivity {
 		}
 	}
 
-	/*
-	 * @Override public void onCreateContextMenu(ContextMenu menu, View v,
-	 * ContextMenuInfo menuInfo) { // TODO Auto-generated method stub
-	 * super.onCreateContextMenu(menu, v, menuInfo); MenuInflater inflater =
-	 * getMenuInflater(); inflater.inflate(R., menu) }
-	 */
 	@Override
 	protected void onResume() {
-		datasource.open();
+		userDataSource.open();
 		super.onResume();
 	}
 
 	@Override
 	protected void onPause() {
-		datasource.close();
+		userDataSource.close();
 		super.onPause();
 	}
 

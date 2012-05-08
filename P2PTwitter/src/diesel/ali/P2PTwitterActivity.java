@@ -1,15 +1,28 @@
 package diesel.ali;
 
+import java.util.Iterator;
+import java.util.List;
+
+import org.alljoyn.services.*;
+
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TabHost;
 
 public class P2PTwitterActivity extends TabActivity {
 	/** Called when the activity is first created. */
-	
+
 	public static final User SENDER = new User("AndrewLi");
-	
+	public static final User PUBLIC = new User("Public");
+
+	private Button mJoinButton;
+
+	private ChatApplication mChatApplication = null;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,5 +52,59 @@ public class P2PTwitterActivity extends TabActivity {
 		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
 			tabHost.getTabWidget().getChildAt(i).getLayoutParams().height = 70;
 		}
+
+		mChatApplication = (ChatApplication) getApplication();
+		mChatApplication.checkin();
+		//mChatApplication.addObserver(this);
+
+		/*
+		 * mChatApplication.hostSetChannelName("DieselGas");
+		 * mChatApplication.hostInitChannel();
+		 * mChatApplication.hostStartChannel(); while
+		 * (mChatApplication.hostGetChannelState() !=
+		 * AllJoynService.HostChannelState.CONNECTED) {
+		 * 
+		 * 
+		 * }
+		 */
+
+		mJoinButton = (Button) findViewById(R.id.useJoin);
+		mJoinButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				List<String> ch = mChatApplication.getFoundChannels();
+				boolean found = false;
+				Log.i("TAGP", "Looking for public channel");
+				for (Iterator<String> i = ch.iterator(); i.hasNext();) {
+					String channelName = i.next();
+					Log.i("TAGP",
+							"Found "
+									+ channelName
+									+ " and t/f: "
+									+ "org.alljoyn.bus.samples.chat.public"
+											.equals(channelName));
+					if (channelName
+							.equals("org.alljoyn.bus.samples.chat.public")) {
+						Log.i("TAGP", "Found public channel");
+						mChatApplication.useSetChannelName("public");
+						mChatApplication.useJoinChannel();
+						found = true;
+					}
+				}
+
+				if (!found) {
+					Log.i("TAGP", "Creating public channel");
+					mChatApplication.hostSetChannelName("public");
+					mChatApplication.hostInitChannel();
+					mChatApplication.hostStartChannel();
+					mChatApplication.useSetChannelName("public");
+					mChatApplication.useJoinChannel();
+				}
+			}
+		});
+		
+		
+		
+		
+
 	}
 }

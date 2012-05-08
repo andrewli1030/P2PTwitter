@@ -13,9 +13,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package org.alljoyn.bus.sample.chat;
+package org.alljoyn.services;
 
-import org.alljoyn.bus.sample.chat.Observable;
+import org.alljoyn.services.Observable;
 
 public interface Observer {
 	public void update(Observable o, Object arg);

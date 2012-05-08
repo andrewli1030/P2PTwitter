@@ -37,6 +37,11 @@ public class StatusHistoryActivity extends Activity {
 
 		recipient = new User(getIntent().getExtras().getString("Recipient"));
 
+		if (getIntent().getExtras().getBoolean("Public")) {
+			editTextOut.setVisibility(View.GONE);
+			buttonSend.setVisibility(View.GONE);
+		}
+
 		STATUSES = datasource.getStatusHistory(recipient);
 
 		statusHistory.setAdapter(new ArrayAdapter<Status>(this,
@@ -47,7 +52,17 @@ public class StatusHistoryActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				String statusText = editTextOut.getText().toString();
-				datasource.insertStatus(P2PTwitterActivity.SENDER, recipient, statusText, (int) System.currentTimeMillis()/1000);
+				Status status = new Status(P2PTwitterActivity.SENDER,
+						recipient, statusText,
+						(int) System.currentTimeMillis() / 1000);
+				if (datasource.insertStatus(status)) {
+					STATUSES.add(status);
+					editTextOut.setText("");
+					((ArrayAdapter) statusHistory.getAdapter())
+							.notifyDataSetChanged();
+					// TODO send status
+				}
+
 			}
 		});
 

@@ -5,15 +5,10 @@ import java.util.List;
 
 public class FriendsOnlineActivity extends UsersOnlineActivity {
 
-	public static final List<User> FRIENDS = new ArrayList<User>();
-	
-	static {
-		FRIENDS.add(new User("Andrew Li"));
-	}
+	public static List<User> FRIENDS = new ArrayList<User>();
 	
 	@Override
 	public List<User> getUsers() {
-		// TODO Auto-generated method stub
 		return FriendsOnlineActivity.FRIENDS;
 	}
 

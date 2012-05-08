@@ -39,4 +39,30 @@ public class UsersDataSource extends DataSource {
 		cursor.close();
 		return users;
 	}
+
+	public String[] getAllUsernames() {
+		String[] usernames = new String[getCount()];
+		Cursor cursor = database.query(DatabaseHelper.TABLE_USERS,
+				new String[] { DatabaseHelper.COL_USERNAME }, null, null, null,
+				null, null);
+		cursor.moveToFirst();
+		while (!cursor.isAfterLast()) {
+			User user = new User(cursor.getString(cursor
+					.getColumnIndex(DatabaseHelper.COL_USERNAME)));
+			usernames[cursor.getPosition()] = user.getUsername();
+			cursor.moveToNext();
+
+		}
+		cursor.close();
+		return usernames;
+	}
+
+	public int getCount() {
+		Cursor cursor = database.query(DatabaseHelper.TABLE_USERS,
+				new String[] { "COUNT(" + DatabaseHelper.COL_USERNAME + ")" },
+				null, null, null, null, null);
+		cursor.moveToFirst();
+		return cursor.getInt(0);
+
+	}
 }
