@@ -28,7 +28,6 @@ public class Status {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return this.user.toString() + ": " + this.statusText;
 	}
 }
