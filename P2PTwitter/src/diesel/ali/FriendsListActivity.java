@@ -6,6 +6,7 @@ import java.util.List;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.TabActivity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
@@ -24,28 +25,48 @@ import android.widget.ListView;
 public class FriendsListActivity extends ListActivity {
 
 	private List<User> FRIENDS = new ArrayList<User>();
-	
+	private UsersDataSource datasource;
+	private static final int DIALOG_ADD_FRIEND = 1;
+	private static final int DIALOG_DELETE_FRIEND = 2;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 
+		datasource = new UsersDataSource(this);
+		datasource.open();
+
+		FRIENDS = datasource.getAllUsers();
+
 		setTitle("Friends");
-		/*
-		 * setListAdapter(new ArrayAdapter<String>(this,
-		 * R.layout.friends_list_item, FRIENDS));
-		 */
 		setListAdapter(new ArrayAdapter<User>(this, R.layout.friends_list_item,
 				FRIENDS));
 
-		ListView lv = getListView();
+		final ListView lv = getListView();
 		lv.setTextFilterEnabled(true);
+		// lv.setLongClickable(true);
+
+		// registerForContextMenu(getListVikeyew());
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("Position", position);
+				showDialog(DIALOG_DELETE_FRIEND, bundle);
 			}
 		});
+
+		/*
+		 * lv.setOnLongClickListener(new OnLongClickListener() {
+		 * 
+		 * @Override public boolean onLongClick(View v) { userSelected = new
+		 * User(((TextView) v).getText().toString());
+		 * showDialog(DIALOG_DELETE_FRIEND); return true; }
+		 * 
+		 * });
+		 */
 	}
 
 	@Override
@@ -56,28 +77,32 @@ public class FriendsListActivity extends ListActivity {
 		return true;
 	}
 
-	private static final int DIALOG_ADD_FRIEND = 1;
-
 	@Override
-	protected Dialog onCreateDialog(int id) {
+	protected Dialog onCreateDialog(int id, final Bundle args) {
 		Dialog dialog;
 		switch (id) {
 		case (DIALOG_ADD_FRIEND):
 			LayoutInflater factory = LayoutInflater.from(this);
 			final EditText textEntryView = (EditText) factory.inflate(
 					R.layout.add_friend_dialog, null);
-			dialog = new AlertDialog.Builder(this)
+			dialog = new AlertDialog.Builder(
+					getParent() instanceof TabActivity ? getParent() : this)
 					.setTitle("Enter Username")
 					.setView(textEntryView)
 					.setPositiveButton("OK",
 							new DialogInterface.OnClickListener() {
 
+								@SuppressWarnings("unchecked")
 								@Override
 								public void onClick(DialogInterface dialog,
 										int which) {
 									Editable username = textEntryView.getText();
-									User newFriend = new User(username.toString());
+									User newFriend = new User(username
+											.toString());
+									datasource.insertUser(newFriend);
 									FRIENDS.add(newFriend);
+									((ArrayAdapter<User>) getListAdapter())
+											.notifyDataSetChanged();
 									dialog.dismiss();
 								}
 							})
@@ -98,6 +123,34 @@ public class FriendsListActivity extends ListActivity {
 				}
 			});
 			break;
+		case (DIALOG_DELETE_FRIEND):
+			dialog = new AlertDialog.Builder(
+					getParent() instanceof TabActivity ? getParent() : this)
+					.setPositiveButton("Delete",
+							new DialogInterface.OnClickListener() {
+
+								@SuppressWarnings("unchecked")
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									User selectedUser = (User) getListView()
+											.getItemAtPosition(
+													args.getInt("Position"));
+									datasource.deleteUser(selectedUser);
+									FRIENDS.remove(selectedUser);
+									((ArrayAdapter<User>) getListAdapter())
+											.notifyDataSetChanged();
+									dialog.dismiss();
+								}
+							}).create();
+			dialog.setOnDismissListener(new OnDismissListener() {
+
+				@Override
+				public void onDismiss(DialogInterface dialog) {
+					removeDialog(DIALOG_DELETE_FRIEND);
+				}
+			});
+			break;
 		default:
 			dialog = null;
 		}
@@ -114,6 +167,24 @@ public class FriendsListActivity extends ListActivity {
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+
+	/*
+	 * @Override public void onCreateContextMenu(ContextMenu menu, View v,
+	 * ContextMenuInfo menuInfo) { // TODO Auto-generated method stub
+	 * super.onCreateContextMenu(menu, v, menuInfo); MenuInflater inflater =
+	 * getMenuInflater(); inflater.inflate(R., menu) }
+	 */
+	@Override
+	protected void onResume() {
+		datasource.open();
+		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		datasource.close();
+		super.onPause();
 	}
 
 }

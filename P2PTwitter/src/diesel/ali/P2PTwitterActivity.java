@@ -16,16 +16,25 @@ public class P2PTwitterActivity extends TabActivity {
 		TabHost.TabSpec spec;
 		Intent intent;
 
-		intent = new Intent().setClass(this, StatusHistoryListActivity.class);
+		intent = new Intent().setClass(this, PublicActivity.class);
 		spec = tabHost.newTabSpec("public").setIndicator("Public")
 				.setContent(intent);
 		tabHost.addTab(spec);
-		
+
+		intent = new Intent().setClass(this, FriendsActivity.class);
+		spec = tabHost.newTabSpec("friends").setIndicator("Friends")
+				.setContent(intent);
+		tabHost.addTab(spec);
+
 		intent = new Intent().setClass(this, SetStatusActivity.class);
 		spec = tabHost.newTabSpec("setstatus").setIndicator("Set Status")
 				.setContent(intent);
 		tabHost.addTab(spec);
 
 		tabHost.setCurrentTabByTag("public");
+
+		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
+			tabHost.getTabWidget().getChildAt(i).getLayoutParams().height = 70;
+		}
 	}
 }

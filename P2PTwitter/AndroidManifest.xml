@@ -19,11 +19,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".StatusHistoryListActivity" >
+        <activity android:name=".PublicActivity" >
+        </activity>
+        <activity android:name=".PublicStatusesActivity" >
+        </activity>
+        <activity android:name=".PublicOnlineActivity" >
+        </activity>
+        <activity android:name=".FriendsActivity" >
+        </activity>
+        <activity android:name=".FriendStatusesActivity" >
+        </activity>
+        <activity android:name=".FriendsOnlineActivity" >
+        </activity>
+        <activity android:name=".FriendsListActivity" >
+        </activity>
+        <activity android:name=".UsersOnlineActivity" >
         </activity>
         <activity android:name=".SetStatusActivity" >
         </activity>
-        <activity android:name=".FriendsListActivity" >
+        <activity android:name=".StatusesActivity" >
         </activity>
     </application>
 
