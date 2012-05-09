@@ -39,6 +39,7 @@ import org.alljoyn.services.Observer;
 import org.alljoyn.services.AllJoynService.UseChannelState;
 
 import diesel.ali.Status;
+import diesel.ali.StatusHistoryDataSource;
 
 /**
  * The ChatAppliation class serves as the Model (in the sense of the common
@@ -583,6 +584,9 @@ public class ChatApplication extends Application implements Observable {
 	}
 	
 	private void addInboundItem(Status status) {
+		StatusHistoryDataSource statusHistoryDataSource = new StatusHistoryDataSource(this);
+		statusHistoryDataSource.open();
+		statusHistoryDataSource.insertStatus(status);
 		addHistoryItem(status);
 	}
 	

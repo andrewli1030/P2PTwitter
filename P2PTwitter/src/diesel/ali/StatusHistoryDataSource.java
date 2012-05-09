@@ -34,12 +34,6 @@ public class StatusHistoryDataSource extends DataSource {
 		return false;
 	}
 
-	/*
-	 * public void deleteUser(User user) {
-	 * database.delete(DatabaseHelper.TABLE_USERS, DatabaseHelper.COL_USERNAME +
-	 * " =?", new String[] { user.getUsername() }); }
-	 */
-
 	public List<Status> getStatusHistory(User user) {
 		List<Status> statuses = new ArrayList<Status>();
 		Cursor cursor = database.query(DatabaseHelper.TABLE_STATUS_HISTORY,

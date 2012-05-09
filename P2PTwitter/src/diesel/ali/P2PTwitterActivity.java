@@ -13,12 +13,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TabHost;
 
-public class P2PTwitterActivity extends TabActivity {
+public class P2PTwitterActivity extends TabActivity implements Observer {
 	/** Called when the activity is first created. */
 
 	public static final User SENDER = new User("AndrewLi");
 	public static final User PUBLIC = new User("Public");
 
+	private Button mStartButton;
 	private Button mJoinButton;
 
 	private ChatApplication mChatApplication = null;
@@ -52,22 +53,11 @@ public class P2PTwitterActivity extends TabActivity {
 		for (int i = 0; i < tabHost.getTabWidget().getChildCount(); i++) {
 			tabHost.getTabWidget().getChildAt(i).getLayoutParams().height = 70;
 		}
-
+		
 		mChatApplication = (ChatApplication) getApplication();
 		mChatApplication.checkin();
-		//mChatApplication.addObserver(this);
-
-		/*
-		 * mChatApplication.hostSetChannelName("DieselGas");
-		 * mChatApplication.hostInitChannel();
-		 * mChatApplication.hostStartChannel(); while
-		 * (mChatApplication.hostGetChannelState() !=
-		 * AllJoynService.HostChannelState.CONNECTED) {
-		 * 
-		 * 
-		 * }
-		 */
-
+		mChatApplication.addObserver(this);
+		
 		mJoinButton = (Button) findViewById(R.id.useJoin);
 		mJoinButton.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -101,10 +91,36 @@ public class P2PTwitterActivity extends TabActivity {
 				}
 			}
 		});
-		
-		
-		
-		
 
+		
+		/*mChatApplication = (ChatApplication) getApplication();
+		mChatApplication.checkin();
+		
+		mStartButton = (Button) findViewById(R.id.useStart);
+		mStartButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				// mChatApplication.addObserver(this);
+				mChatApplication.hostSetChannelName("DieselGas");
+				mChatApplication.hostInitChannel();
+				mChatApplication.hostStartChannel();
+			}
+		});
+		
+		mJoinButton = (Button) findViewById(R.id.useJoin);
+		mJoinButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mChatApplication.useSetChannelName("DieselGas");
+				mChatApplication.useJoinChannel();
+			}
+		});*/
+
+	}
+
+	@Override
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -56,6 +56,9 @@ public class SetStatusActivity extends Activity {
 
 				if (statusHistoryDataSource.insertStatus(publicStatus)) {
 					// TODO send status
+					
+					
+					
 					statusEditText.setText("");
 					startActivity(intent);
 				}
